@@ -2,6 +2,8 @@ library(data.table)
 library(dplyr)
 library(tidyr)
 
+rm(list=ls())
+
 setwd("~/IMG/Projects/HP1.Lamin.Polycomb.DNA.contacts.Effect.on.expression/Kc167_multi_DamID_Filion_2010/")
 kc.damid.hmm <- fread("Kc167_HP1.LAM.PC.DamID.HMM.csv")
 chrs <- unique(kc.damid.hmm$chromosome)

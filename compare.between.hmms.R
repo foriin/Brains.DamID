@@ -48,11 +48,13 @@ for (i in 1:(length(ls(envir = beds)) - 1)){
     
     intersect.gr <- intersect(gr1, gr2)
     df_intersected <- data.frame(chr = seqnames(intersect.gr), start = start(intersect.gr), end = end(intersect.gr))
-    ab <- merge(sum_bed(x)[,-3], sum_bed(compto)[,-3], by = "chr")
-    y <- merge(ab, sum_bed(df_intersected), by = "chr") %>% 
+    ab <- merge(sum_bed(x), sum_bed(compto), by = c("chr", "chrlen"), all.x = T, all.y = T)
+    y <- merge(ab, sum_bed(df_intersected), by = c("chr", "chrlen"), all.x = T, all.y = T) %>% 
       mutate("i/x" = round(dom_len / dom_len.x, digits=3),
              "i/y" = round(dom_len / dom_len.y, digits=3),
-             coverage = round(dom_len / chrlen, digits=3)) %>% 
+             coverage.x = round(dom_len.x / chrlen, digits=3),
+             coverage.y = round(dom_len.y / chrlen, digits=3),
+             coverage.i = round(dom_len / chrlen, digits=3)) %>% 
       dplyr::rename(dom_len.i = dom_len) #bitch-ass s4vectors package hid dplyr rename function
     assign(paste0(x.name, ".vs.", compto.name), y, envir = comparisons)
     return()
@@ -74,7 +76,7 @@ for (i in ls(envir = comparisons)){
            "coverage i" = round(dom_len.i / chrlen, digits = 3))
   sumry.het = get(i, envir = comparisons) %>% 
     filter(grepl("Het|4", chr)) %>% 
-    summarise_each(funs(sum), dom_len.x, dom_len.y, dom_len.i, chrlen) %>% 
+    summarise_each(funs(sum(., na.rm = TRUE)), dom_len.x, dom_len.y, dom_len.i, chrlen) %>% 
     mutate("i/x total" = round(dom_len.i / dom_len.x, digits = 3), "i/y total" = round(dom_len.i / dom_len.y, digits = 3),
            "coverage x" = round(dom_len.x / chrlen, digits = 3),
            "coverage y" = round(dom_len.y / chrlen, digits = 3),
@@ -84,21 +86,7 @@ for (i in ls(envir = comparisons)){
   write.table(sumry.eu, paste0(i, ".csv"), quote = F, sep = ";", dec = ",", row.names = F, append = T)
   cat("Heterochromatin summary\n", file = paste0(i, ".csv"), append = T)
   write.table(sumry.het, paste0(i, ".csv"), quote = F, sep = ";", dec = ",", row.names = F, append = T)
-  }
+}
 
 
-BR.HP1 %>% 
-  setNames(c("chr", "start", "end")) %>% 
-  mutate(len = end - start) %>% 
-  group_by(chr) %>% 
-  summarise(dom_len = sum(len)) %>% 
-  rowwise() %>% 
-  mutate(chrlen = chr.len$len[grepl(paste0("^", chr, "$"), chr.len$chr)]) %>% 
-  mutate(ratio = dom_len / chrlen)
 
-lapply(1:2, function(i){
-  y <- get(ls(envir = beds)[i], envir = beds)
-  name <- paste0(ls(envir = beds)[i], i)
-  assign(name, y, envir = .GlobalEnv)
-  return()
-})
