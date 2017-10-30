@@ -1,3 +1,7 @@
+# Generate venn diagrams for each tissue
+# Euchromatin and heterochromatin are separated
+# 4th chromosome is separated from rest
+
 library(GenomicRanges)
 library(data.table)
 library(combinat)

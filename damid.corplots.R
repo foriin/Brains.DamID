@@ -1,3 +1,5 @@
+# Generate some scatterplots on raw counts data from DamID experiment
+
 library(data.table)
 library(dplyr)
 library(ggplot2)
@@ -22,10 +24,12 @@ DATA2 <- cbind(DATA[, 1:4],
                  })
                ))
 
+# remove some ugly outliers
 DATA2$DAM.FB.m_25mkM4HT.1.all[DATA2$DAM.FB.m_25mkM4HT.1.all > 500] <- NA
 DATA2$LAM.FB.m_25mkM4HT.1.all[DATA2$LAM.FB.m_25mkM4HT.1.all > 500] <- NA
 DATA2$LAM.FB.m_25mkM4HT.2.all[DATA2$LAM.FB.m_25mkM4HT.2.all > 500] <- NA
 DATA2$PC.FB.m_25mkM4HT.1.all[DATA2$PC.FB.m_25mkM4HT.1.all > 1000] <- NA
+DATA2$PC.FB.m_25mkM4HT.2.all[DATA2$PC.FB.m_25mkM4HT.2.all > 1000] <- NA
 # DATA2$HP1.FB.m_25mkM4HT.2.all[DATA2$HP1.FB.m_25mkM4HT.2.all > 600] <- NA
 
 ScatCor <- function(data, lastcol = 4, pref){
@@ -76,4 +80,4 @@ ScatterPlotting <- function(dataSet) {
 
 # names(DATA) <- gsub("^([^.]+\\.[^.]+)\\..*(\\d)\\.all$", "\\1.\\2", names(DATA))
 ScatterPlotting(DATA2)
-            
+

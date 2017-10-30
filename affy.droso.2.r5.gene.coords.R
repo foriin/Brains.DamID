@@ -18,7 +18,7 @@ gene.coor <- gene.coor %>%
 
 chip.key.r5 <- merge(chip.key, gene.coor, by = "FBgn")
 
-gse18092.r5 <- merge(chip.key.r5, ma_data2, by = "ID") %>% arrange(-diff) %>% select(1:5, 7:9, 17:19) %>% 
+gse18092.r5 <- merge(chip.key.r5, ma_data2, by = "ID") %>% select(1:5, 7:9, 17:19) %>% 
   mutate(TSS = ifelse(strand == "+", start, end))
 
 write.table(gse18092.r5, "GSE18092.r5.gene.coord.tss.csv", row.names = F, sep = '\t')
