@@ -17,7 +17,7 @@ sum_bed <- function(df){
     mutate(chrlen = chr.len$len[grepl(paste0("^", chr, "$"), chr.len$chr)])
 }
 
-setwd("~/IMG/Projects/HP1.Lamin.Polycomb.DNA.contacts.Effect.on.expression/DamID-seq.HP1.PC.Lam.WBr.Nrn.Glia.Fb/02.04.17_all_samples_300/BioHMM2/intersected/")
+setwd("~/IMG/Projects/HP1.Lamin.Polycomb.DNA.contacts.Effect.on.expression/DamID-seq.HP1.PC.Lam.WBr.Nrn.Glia.Fb/21.07.17_1kbins_NRN/sum_rep_qn/BioHMM.qn/")
 
 beds <- new.env()
 for (i in dir()[grepl("bed", dir())]){
