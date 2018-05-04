@@ -36,14 +36,14 @@ boxplot(log2damid~ chr, data = bg.pl$BR, outline = F)
 damid.fol <- paste0("~/IMG/Projects/",
 "HP1.Lamin.Polycomb.DNA.contacts.Effect.on.expression/",
 "DamID-seq.HP1.PC.Lam.WBr.Nrn.Glia.Fb/final_variant/",
-"HP1.bedgraph.plus.Kc/BioHMM.qn.euc/")
+"HP1.bedgraph.plus.Kc ")
 
 domains <- new.env()
 # hp1 domains
 for (i in dir(damid.fol, pattern = "(HP1).*bed")){
-  df <- fread(file.path(damid.fol, i), skip = 1, col.names = c("chr", "start", "end")) %>% filter(chr %in%euc)
+  df <- fread(file.path(damid.fol, i), skip = 1, col.names = c("chr", "start", "end")) %>% dplyr::filter(chr %in%euc)
   assign(sub("\\.domains\\.bed", "", i),
-         intersect(
+         GenomicRanges::intersect(
            GRanges(seqnames = Rle(df$chr),  ranges = IRanges(start = df$start, end = df$end)),
            euc.gr),
          envir = domains)
@@ -111,17 +111,22 @@ out.lad.df <- lapply(in.lad.out.lad, function(lst){
              damid = elementMetadata(lst[[2]])[,1]) %>% filter(!is.na(chr))
 })
 
-bg.df <- lapply(bg, function(gr){
+bg.lst <- lapply(bg, function(gr){
   chrom <- seqnames(gr)
   levels(chrom) <- list(A = euc[1:4], X = "chrX")
-  data.frame(chr = chrom,
+  data.frame(chr = seqnames(gr),
+             chrom = chrom,
              start = start(gr),
              end = end(gr),
              damid = elementMetadata(gr)[,1]) %>% 
-    filter(!is.na(chr))
+    filter(!is.na(chrom))
 })
 
-
+bg.df <- Reduce(function(x, y) merge(x, y, by=c("chr", "start"), all.x = T, all.y = T), bg.lst)
+levels(bg.df$chr) <- list(A = euc[1:4], X = "chrX")
+bg.df <- bg.df[,c(1, 5, 8, 11, 14, 17)]
+bg.df <- bg.df %>% setNames(c("chr", "BR", "NRN", "Kc167", "Glia", "FB"))
+bg.melt <- melt(bg.df)
 
 a <- melt(bg.df) %>% filter(variable == "damid") %>% droplevels()
 pdf("a.vs.x.in.domains.pdf")
